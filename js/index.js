@@ -40,7 +40,7 @@ let playerMoveDown = false;
 
 // Obstacles
 const obstaclesArray = [];
-const minSpawnAfterFrames = 180;
+const minSpawnAfterFrames = 150;
 const maxSpawnAfterFrames = 80;
 let spawnAfterFrames = minSpawnAfterFrames;
 let spawnFrames = 0;
@@ -119,7 +119,6 @@ window.onload = () => {
 
     // Gameplay loop
     if (!gameOver && !dead) {
-      if (gameFrames % 180 === 0) score++;
       if (gameFrames % 360 === 0) bgSpeed += gameSpeedIncrementor;
       animateId = requestAnimationFrame(animate);
     } else if (!gameOver && dead) {
@@ -207,12 +206,13 @@ window.onload = () => {
 
       // remove obstacles from array
       if (obstaclesArray[i].y >= canvas.height) {
+        score++;
         obstaclesArray.splice(i, 1);
       }
     }
 
     spawnFrames++;
-    if (spawnFrames === spawnAfterFrames) {
+    if (spawnFrames >= spawnAfterFrames) {
 
       const minWidth = 30;
       const minHeight = 20;
@@ -246,6 +246,8 @@ window.onload = () => {
     // Reduce lives
     lives--;
     dead = false;
+    bgSpeed = gameSpeed;
+    spawnFrames = minSpawnAfterFrames;
 
     // Remove obstacles
     obstaclesArray.splice(0, obstaclesArray.length);
@@ -288,6 +290,7 @@ window.onload = () => {
       lives = maxLives;
       score = 0;
       bgSpeed = gameSpeed;
+      spawnFrames = minSpawnAfterFrames;
       // Remove obstacles
       obstaclesArray.splice(0, obstaclesArray.length);
   
