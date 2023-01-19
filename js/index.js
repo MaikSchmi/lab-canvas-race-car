@@ -26,13 +26,13 @@ let bgSpeed = gameSpeed;
 // Player Vars
 const playerImg = new Image();
 playerImg.src = "../images/car.png";
-playerImgWidth = playerImg.width / 2;
-playerImgHeight = playerImg.height / 2;
+const playerImgWidth = 80;
+const playerImgHeight = 140;
 // --- Player Position + Movement
 const playerSpeedX = 5;
 const playerSpeedY = 2.5;
-let playerPosX = canvas.width / 2 - playerImg.width / 4;
-let playerPosY = canvas.height - playerImg.height;
+let playerPosX = 250 - playerImgWidth / 2;
+let playerPosY = 700 - playerImgHeight - 10;
 let playerMoveLeft = false;
 let playerMoveRight = false;
 let playerMoveUp = false;
@@ -71,9 +71,32 @@ class Obstacle {
 }
 
 window.onload = () => {
+
+}
+
+window.onload = () => {
   document.getElementById('start-button').onclick = () => {
     startGame();
   };
+  
+  function cacheImages(imgArray) {
+    if (!cacheImages.list) {
+      cacheImages.list = [];
+    }
+    let list = cacheImages.list;
+    for (let i = 0; i < imgArray.length; i++) {
+      let img = new Image();
+      img.onload = function() {
+        let index = list.indexOf(this);
+        if (index !== -1) {
+          list.splice(index, 1);
+        }
+      }
+      list.push(img);
+      img.src = imgArray[i];
+    }
+  }
+  cacheImages(["../images/car.png"]);
 
   // Game Animation
   function animate() {
@@ -94,9 +117,6 @@ window.onload = () => {
     if (bg1Y >= canvas.height) bg1Y = bg2Y + -canvas.height;
     if (bg2Y >= canvas.height) bg2Y = bg1Y + -canvas.height;
 
-    // Draw Obstacles
-    updateObstacles();
-
     // Player
     ctx.drawImage(playerImg, playerPosX, playerPosY, playerImgWidth, playerImgHeight)
     // --- Player Movement
@@ -112,10 +132,13 @@ window.onload = () => {
     if (playerMoveUp && playerPosY > 0) {
       playerPosY -= playerSpeedY;
     }
-    checkCollision();
 
-    // Draw UI
+    // UI
     drawUI();
+    // Obstacles
+    updateObstacles();
+    // Collision
+    checkCollision();
 
     // Gameplay loop
     if (!gameOver && !dead) {
@@ -175,6 +198,7 @@ window.onload = () => {
         break;
     }
   })
+
   // Player <-> Obstacle Collision
   function checkCollision() {
     const playerLeft = playerPosX;
@@ -247,7 +271,7 @@ window.onload = () => {
     lives--;
     dead = false;
     bgSpeed = gameSpeed;
-    spawnFrames = minSpawnAfterFrames;
+    spawnAfterFrames = minSpawnAfterFrames;
 
     // Remove obstacles
     obstaclesArray.splice(0, obstaclesArray.length);
@@ -281,16 +305,16 @@ window.onload = () => {
   }
     
   function retryButton() {
-    const gameOverButton = document.createElement("button");
-    gameOverButton.innerHTML = "Retry";
-    gameOverButton.classList.add("btn-game-over");
-    gameOverButton.onclick = () => {
+    const retryButton = document.createElement("button");
+    retryButton.innerHTML = "Retry";
+    retryButton.classList.add("btn-game-over");
+    retryButton.onclick = () => {
       dead = false;
       gameOver = false;
       lives = maxLives;
       score = 0;
       bgSpeed = gameSpeed;
-      spawnFrames = minSpawnAfterFrames;
+      spawnAfterFrames = minSpawnAfterFrames;
       // Remove obstacles
       obstaclesArray.splice(0, obstaclesArray.length);
   
@@ -304,7 +328,7 @@ window.onload = () => {
 
       startGame();
     }
-    document.body.appendChild(gameOverButton);
+    document.body.appendChild(retryButton);
   }
 
   function gameOverScreen() {
