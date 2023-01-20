@@ -206,6 +206,7 @@ window.onload = () => {
       // remove obstacles from array
       if (obstaclesArray[i].y >= canvas.height) {
         score++;
+        delete obstaclesArray[i];
         obstaclesArray.splice(i, 1);
       }
     }
