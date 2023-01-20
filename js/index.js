@@ -31,8 +31,10 @@ const playerImgHeight = 140;
 // --- Player Position + Movement
 const playerSpeedX = 5;
 const playerSpeedY = 2.5;
-let playerPosX = 250 - playerImgWidth / 2;
-let playerPosY = 700 - playerImgHeight - 10;
+const playerStartPosX = 250 - playerImgWidth / 2;
+const playerStartPosY = 700 - playerImgHeight - 10;
+let playerPosX = playerStartPosX;
+let playerPosY = playerStartPosY;
 let playerMoveLeft = false;
 let playerMoveRight = false;
 let playerMoveUp = false;
@@ -44,7 +46,7 @@ const minSpawnAfterFrames = 150;
 const maxSpawnAfterFrames = 80;
 let spawnAfterFrames = minSpawnAfterFrames;
 let spawnFrames = 0;
-
+// --- Obstacle Class
 class Obstacle {
   constructor(startX, startY, width, height, color) {
     	this.x = startX;
@@ -64,39 +66,12 @@ class Obstacle {
     ctx.fillRect(this.x, this.y, this.startWidth, this.startHeight, this.startColor);
     ctx.closePath();
   }
-
-  collisionCheck() {
-    
-  }
-}
-
-window.onload = () => {
-
 }
 
 window.onload = () => {
   document.getElementById('start-button').onclick = () => {
     startGame();
   };
-  
-  function cacheImages(imgArray) {
-    if (!cacheImages.list) {
-      cacheImages.list = [];
-    }
-    let list = cacheImages.list;
-    for (let i = 0; i < imgArray.length; i++) {
-      let img = new Image();
-      img.onload = function() {
-        let index = list.indexOf(this);
-        if (index !== -1) {
-          list.splice(index, 1);
-        }
-      }
-      list.push(img);
-      img.src = imgArray[i];
-    }
-  }
-  cacheImages(["../images/car.png"]);
 
   // Game Animation
   function animate() {
@@ -140,7 +115,7 @@ window.onload = () => {
     // Collision
     checkCollision();
 
-    // Gameplay loop
+    // Game loop
     if (!gameOver && !dead) {
       if (gameFrames % 360 === 0) bgSpeed += gameSpeedIncrementor;
       animateId = requestAnimationFrame(animate);
@@ -258,34 +233,6 @@ window.onload = () => {
 
     }
   }
-
-  function startGame() {
-    // Hide title screen
-    titleScreen.style.display = "none";
-    canvas.style.border = "1px solid";
-    animate();
-  }
-
-  function gameRetry() {
-    // Reduce lives
-    lives--;
-    dead = false;
-    bgSpeed = gameSpeed;
-    spawnAfterFrames = minSpawnAfterFrames;
-
-    // Remove obstacles
-    obstaclesArray.splice(0, obstaclesArray.length);
-
-    // Reset Player
-    playerPosX = canvas.width / 2 - playerImg.width / 4;
-    playerPosY = canvas.height - playerImg.height;
-    playerMoveLeft = false;
-    playerMoveRight = false;
-    playerMoveUp = false;
-    playerMoveDown = false;
-    
-    animateId = requestAnimationFrame(animate);
-  }
   
   function drawUI() {
     // Score
@@ -303,29 +250,26 @@ window.onload = () => {
     ctx.closePath();
  
   }
+
+  // Gameplay Loop Handling
+  function startGame() {
+    // Hide title screen
+    titleScreen.style.display = "none";
+    canvas.style.border = "1px solid";
+    animate();
+  }
+
+  function gameRetry() {
+    resetGameValues();
+    animateId = requestAnimationFrame(animate);
+  }
     
   function retryButton() {
     const retryButton = document.createElement("button");
     retryButton.innerHTML = "Retry";
     retryButton.classList.add("btn-game-over");
     retryButton.onclick = () => {
-      dead = false;
-      gameOver = false;
-      lives = maxLives;
-      score = 0;
-      bgSpeed = gameSpeed;
-      spawnAfterFrames = minSpawnAfterFrames;
-      // Remove obstacles
-      obstaclesArray.splice(0, obstaclesArray.length);
-  
-      // Reset Player
-      playerPosX = canvas.width / 2 - playerImg.width / 4;
-      playerPosY = canvas.height - playerImg.height;
-      playerMoveLeft = false;
-      playerMoveRight = false;
-      playerMoveUp = false;
-      playerMoveDown = false;
-
+      resetGameValues();
       startGame();
     }
     document.body.appendChild(retryButton);
@@ -350,5 +294,30 @@ window.onload = () => {
     ctx.closePath();
 
     retryButton();
+  }
+
+  function resetGameValues() {
+
+    if (gameOver) {
+      lives = maxLives;
+      score = 0;
+    } else {
+      lives--;
+
+    }
+    dead = false;
+    gameOver = false;
+    bgSpeed = gameSpeed;
+    spawnAfterFrames = minSpawnAfterFrames;
+    // Remove obstacles
+    obstaclesArray.splice(0, obstaclesArray.length);
+
+    // Reset Player
+    playerPosX = playerStartPosX;
+    playerPosY = playerStartPosY;
+    playerMoveLeft = false;
+    playerMoveRight = false;
+    playerMoveUp = false;
+    playerMoveDown = false;
   }
 };
